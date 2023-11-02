@@ -4,10 +4,13 @@ import swordImage from '../public/assets/sword.jpeg'; // Importe a imagem
 const App = () => {
   const [randomValue, setRandomValue] = useState(0);
   const [currentValue, setCurrentValue] = useState(0);
+  const [isWaiting, setIsWaiting] = useState(false);
 
   useEffect(() => {
     const animationDuration = 3000; // Duração da animação em milissegundos
     const waitDuration = 2000; // Duração da pausa em milissegundos após atingir o valor gerado
+    const waitMessageDuration = 10000; // Duração da mensagem de espera em milissegundos
+
     const step = 1; // Valor de incremento a cada iteração
 
     const animate = () => {
@@ -18,14 +21,21 @@ const App = () => {
 
       const animationInterval = setInterval(() => {
         if (stepCount < random) {
-          setCurrentValue((prevValue) => prevValue + step);
+          setCurrentValue((prevValue) => {
+            if (prevValue < random) {
+              return prevValue + step;
+            }
+            return prevValue;
+          });
           stepCount += 1;
         } else {
           clearInterval(animationInterval);
+          setIsWaiting(true);
           setTimeout(() => {
+            setIsWaiting(false);
             setCurrentValue(0); // Redefinir para zero após a pausa
             animate(); // Iniciar a animação novamente
-          }, waitDuration);
+          }, waitMessageDuration);
         }
       }, animationDuration / random);
     };
@@ -43,9 +53,9 @@ const App = () => {
         <img src={swordImage} alt="Espada" className="absolute top-1/2 right-0 transform -translate-y-1/2 w-96 h-auto" />
       </div>
 
-      {/* Exibir o valor atual do número animado */}
+      {/* Exibir o valor atual do número animado ou a mensagem de espera */}
       <div className="text-white text-4xl mb-8">
-        {currentValue}
+        {isWaiting ? 'Waiting for the next round ;)' : currentValue}
       </div>
 
       {/* Renderizar componentes de jogo aqui */}
